@@ -21,6 +21,7 @@
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { overflow-x: hidden; max-width: 100%; }
 
     :root {
       --navy:  #1a2744;
@@ -2062,7 +2063,7 @@ ${JSON.stringify(docStruct?.sections||[])}`
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
-      <button onclick="showPage('page-home')" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);font-family:'DM Sans',sans-serif;font-size:0.8rem;padding:7px 16px;border-radius:100px;cursor:pointer;">← Inicio</button>
+      <button onclick="window.showPage && window.showPage('page-home')" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);font-family:'DM Sans',sans-serif;font-size:0.8rem;padding:7px 16px;border-radius:100px;cursor:pointer;">← Inicio</button>
       <button onclick="window.print()" style="background:linear-gradient(135deg,#c9a84c,#e8c97a);border:none;color:#0f1a30;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;padding:7px 16px;border-radius:100px;cursor:pointer;">🖨 Imprimir / PDF</button>
     </div>
   </nav>
@@ -2532,10 +2533,15 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#D8DDE8;display:flex;fle
 
 <script>
 function showPage(id) {
-  document.querySelectorAll('.cra-page').forEach(p => p.style.display = 'none');
-  document.getElementById(id).style.display = 'block';
-  window.scrollTo(0, 0);
+  try {
+    document.querySelectorAll('.cra-page').forEach(function(p) { p.style.display = 'none'; });
+    var el = document.getElementById(id);
+    if (el) { el.style.display = 'block'; }
+    window.scrollTo(0, 0);
+  } catch(e) { console.error('showPage error:', e); }
 }
+// Make globally available
+window.showPage = showPage;
 </script>
 
 <script>
