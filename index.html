@@ -8,6 +8,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 
+  <!-- Navegación entre páginas — debe ir ANTES de React/Babel -->
+  <script>
+    window.showPage = function(id) {
+      document.querySelectorAll('.cra-page').forEach(function(p) { p.style.display = 'none'; });
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'block';
+      window.scrollTo(0, 0);
+    };
+  </script>
+
   <!-- EmailJS -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
@@ -21,7 +31,6 @@
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { overflow-x: hidden; max-width: 100%; }
 
     :root {
       --navy:  #1a2744;
@@ -43,6 +52,9 @@
       color: var(--text);
       font-family: var(--font-body);
       min-height: 100vh;
+      width: 100%;
+      overflow-x: hidden;
+      margin: 0;
     }
 
     /* ── NOISE TEXTURE overlay ── */
@@ -443,7 +455,7 @@
   </nav>
 
   <!-- HERO -->
-  <section style="position:relative;background:linear-gradient(160deg,#0f1a30 0%,#1a2744 60%,#243560 100%);padding:5rem 2rem 6rem;text-align:center;overflow:hidden;">
+  <section style="position:relative;background:linear-gradient(160deg,#0f1a30 0%,#1a2744 60%,#243560 100%);padding:5rem 2rem 6rem;text-align:center;overflow:hidden;width:100%;box-sizing:border-box;">
     <div style="position:absolute;top:-80px;right:-80px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.18) 0%,transparent 70%);pointer-events:none;"></div>
     <div style="position:absolute;bottom:-60px;left:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(0,156,222,0.12) 0%,transparent 70%);pointer-events:none;"></div>
     <div style="position:relative;z-index:2;max-width:680px;margin:0 auto;">
@@ -2063,7 +2075,7 @@ ${JSON.stringify(docStruct?.sections||[])}`
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
-      <button onclick="window.showPage && window.showPage('page-home')" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);font-family:'DM Sans',sans-serif;font-size:0.8rem;padding:7px 16px;border-radius:100px;cursor:pointer;">← Inicio</button>
+      <button onclick="showPage('page-home')" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);font-family:'DM Sans',sans-serif;font-size:0.8rem;padding:7px 16px;border-radius:100px;cursor:pointer;">← Inicio</button>
       <button onclick="window.print()" style="background:linear-gradient(135deg,#c9a84c,#e8c97a);border:none;color:#0f1a30;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;padding:7px 16px;border-radius:100px;cursor:pointer;">🖨 Imprimir / PDF</button>
     </div>
   </nav>
@@ -2530,19 +2542,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#D8DDE8;display:flex;fle
   </div>
 </div>
 
-
-<script>
-function showPage(id) {
-  try {
-    document.querySelectorAll('.cra-page').forEach(function(p) { p.style.display = 'none'; });
-    var el = document.getElementById(id);
-    if (el) { el.style.display = 'block'; }
-    window.scrollTo(0, 0);
-  } catch(e) { console.error('showPage error:', e); }
-}
-// Make globally available
-window.showPage = showPage;
-</script>
 
 <script>
 (function(){
