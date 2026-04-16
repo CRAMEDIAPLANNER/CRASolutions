@@ -1327,104 +1327,24 @@ function sanitizePalette(raw) {
 const isValidHex = h => /^#[0-9a-fA-F]{6}$/.test(h);
 
 function downloadHtmlForPdf(html,css,title) {
+  // Escapar backticks en html y css para no romper el template literal
+  const safeHtml = (html||"").replace(/`/g,"\\`");
+  const safeCss  = (css||"").replace(/`/g,"\\`");
   const doc=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/><title>${title||"Informe"}</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Montserrat:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <style>@page{size:A4 portrait;margin:0}*{box-sizing:border-box;margin:0;padding:0}
 html,body{width:210mm;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-${css}@media print{body{width:210mm}}</style></head>
-<body>${html}
+${safeCss}@media print{body{width:210mm}}<\/style><\/head>
+<body>${safeHtml}
 <script>window.addEventListener('load',function(){setTimeout(function(){window.print();},800);});<\/script>
-<script>
-(function(){
-  emailjs.init({ publicKey: "DFMiJ4ntlIORbGZPV" });
-})();
-
-function enviarBrief() {
-  const btn    = document.getElementById('btn-send-brief');
-  const status = document.getElementById('brief-status');
-  const cliente = document.getElementById('brief-cliente').value.trim() || 'Cliente';
-
-  // Collect all form fields from the brief
-  const container = document.getElementById('brief-content');
-  const lines = [];
-
-  // Text inputs
-  container.querySelectorAll('input[type="text"], input:not([type]), input[placeholder]').forEach(el => {
-    if (el.id === 'brief-cliente') return;
-    const label = el.closest('.q-block')?.querySelector('.q-label')?.textContent?.trim() || el.placeholder || 'Campo';
-    const val   = el.value.trim();
-    if (val) lines.push(label + ': ' + val);
-  });
-
-  // Textareas
-  container.querySelectorAll('textarea').forEach(el => {
-    const label = el.closest('.q-block')?.querySelector('.q-label')?.textContent?.trim() || 'Texto';
-    const val   = el.value.trim();
-    if (val) lines.push(label + ': ' + val);
-  });
-
-  // Checkboxes
-  container.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
-    const spanText = el.nextElementSibling?.textContent?.trim();
-    const label    = el.closest('.q-block')?.querySelector('.q-label')?.textContent?.trim() || 'Opción';
-    if (spanText) lines.push('✓ [' + label + '] ' + spanText);
-  });
-
-  // Radios
-  container.querySelectorAll('input[type="radio"]:checked').forEach(el => {
-    const spanText = el.nextElementSibling?.textContent?.trim();
-    const label    = el.closest('.q-block')?.querySelector('.q-label')?.textContent?.trim() || 'Selección';
-    if (spanText) lines.push('● [' + label + '] ' + spanText);
-  });
-
-  if (lines.length === 0) {
-    status.style.display = 'block';
-    status.style.background = 'rgba(180,40,40,0.2)';
-    status.style.color = '#f87';
-    status.textContent = '⚠ El brief está vacío. Rellena al menos un campo antes de enviar.';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = '⟳ Enviando...';
-  status.style.display = 'none';
-
-  const params = {
-    cliente:       cliente,
-    brief_content: '=== BRIEF AVATAR DIGITAL · ' + cliente + ' ===\n\n' + lines.join('\n'),
-    to_email:      'cramediaplanner@aol.com',
-    from_name:     cliente,
-    message:       lines.join('\n'),
-  };
-
-  emailjs.send('service_09v7u2z', 'template_3qunphk', params)
-    .then(() => {
-      status.style.display = 'block';
-      status.style.background = 'rgba(40,180,80,0.15)';
-      status.style.color = '#4caf7d';
-      status.textContent = '✓ Brief enviado correctamente a cramediaplanner@aol.com';
-      btn.textContent = '✓ Enviado';
-      btn.style.background = '#4caf7d';
-      btn.style.color = 'white';
-    })
-    .catch(err => {
-      status.style.display = 'block';
-      status.style.background = 'rgba(180,40,40,0.2)';
-      status.style.color = '#f87';
-      status.textContent = '✗ Error al enviar: ' + (err?.text || JSON.stringify(err));
-      btn.disabled = false;
-      btn.textContent = '✉ Enviar Brief';
-    });
-}
-</script>
-
-</body></html>`;
+<\/body><\/html>`;
   const blob=new Blob([doc],{type:"text/html;charset=utf-8"});
   const url=URL.createObjectURL(blob);
   const a=Object.assign(document.createElement("a"),{href:url,download:`${(title||"informe").replace(/\s+/g,"-")}.html`});
   document.body.appendChild(a);a.click();document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),3000);
 }
+
 
 function loadPptxGenJS() {
   return new Promise((res,rej)=>{
@@ -1885,7 +1805,7 @@ function PaletteEditor({palette, onChange}) {
               <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
                 <label style={{position:"relative",cursor:"pointer",flexShrink:0}}>
                   <div style={{width:24,height:24,borderRadius:5,background:palette[key],border:"2px solid rgba(255,255,255,0.15)",cursor:"pointer"}}/>
-                  <input type="color" value={palette[key]||"#000000"}
+                  <input type="color" value={isValidHex(palette[key])?palette[key]:"#000000"}
                     onChange={e=>handleInput(key,e.target.value)}
                     style={{position:"absolute",opacity:0,width:"100%",height:"100%",top:0,left:0,cursor:"pointer"}}/>
                 </label>
